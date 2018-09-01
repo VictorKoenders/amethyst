@@ -76,11 +76,12 @@ impl Renderer {
         use glutin::GlContext;
 
         if let Some(size) = self.window().get_inner_size() {
+            let size: (u32, u32) = size.into();
             if size != self.cached_size {
-                self.cached_size = size;
+                self.cached_size = size.into();
                 #[cfg(feature = "opengl")]
-                self.window.resize(size.0, size.1);
-                self.resize(pipe, size);
+                self.window.resize(self.cached_size.into());
+                self.resize(pipe, size.into());
             }
         }
 
@@ -172,19 +173,19 @@ impl RendererBuilder {
         }
         match self.config.dimensions {
             Some((width, height)) => {
-                wb = wb.with_dimensions(width, height);
+                wb = wb.with_dimensions((width, height).into());
             }
             _ => (),
         }
         match self.config.min_dimensions {
             Some((width, height)) => {
-                wb = wb.with_min_dimensions(width, height);
+                wb = wb.with_min_dimensions((width, height).into());
             }
             _ => (),
         }
         match self.config.max_dimensions {
             Some((width, height)) => {
-                wb = wb.with_max_dimensions(width, height);
+                wb = wb.with_max_dimensions((width, height).into());
             }
             _ => (),
         }
@@ -205,7 +206,8 @@ impl RendererBuilder {
 
         let cached_size = window
             .get_inner_size()
-            .expect("Unable to fetch window size, as the window went away!");
+            .expect("Unable to fetch window size, as the window went away!")
+            .into();
         let encoder = factory.create_command_buffer().into();
         Ok(Renderer {
             device,
@@ -288,7 +290,7 @@ fn init_backend(wb: WindowBuilder, el: &EventsLoop, config: &DisplayConfig) -> R
         .with_gl(GlRequest::Latest);
 
     let (win, dev, fac, color, depth) = win::init::<ColorFormat, DepthFormat>(wb, ctx, el);
-    let size = win.get_inner_size().ok_or(Error::WindowDestroyed)?;
+    let size = win.get_inner_size().ok_or(Error::WindowDestroyed)?.into();
     let main_target = Target::new(
         ColorBuffer {
             as_input: None,

@@ -49,14 +49,10 @@ fn initialise_camera(world: &mut World) {
 
 /// Hide the cursor, so it's invisible while playing.
 fn hide_cursor(world: &mut World) {
-    use amethyst::winit::CursorState;
-
     world
         .write_resource::<WindowMessages>()
         .send_command(|win| {
-            if let Err(err) = win.set_cursor_state(CursorState::Hide) {
-                eprintln!("Unable to make cursor hidden! Error: {:?}", err);
-            }
+            win.hide_cursor(true);
         });
 }
 

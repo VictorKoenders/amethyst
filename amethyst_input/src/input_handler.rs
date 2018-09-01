@@ -183,9 +183,8 @@ where
                         }
                     }
                 }
-                WindowEvent::CursorMoved {
-                    position: (x, y), ..
-                } => {
+                WindowEvent::CursorMoved { position, .. } => {
+                    let (x, y) = position.into();
                     if let Some((old_x, old_y)) = self.mouse_position {
                         event_handler.single_write(CursorMoved {
                             delta_x: x - old_x,

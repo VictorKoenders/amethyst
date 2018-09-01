@@ -65,9 +65,9 @@ impl DisplayConfig {
     pub fn to_windowbuilder(self, el: winit::EventsLoop) -> WindowBuilder {
         use winit::WindowAttributes;
         let attrs = WindowAttributes {
-            dimensions: self.dimensions,
-            max_dimensions: self.max_dimensions,
-            min_dimensions: self.min_dimensions,
+            dimensions: self.dimensions.map(Into::into),
+            max_dimensions: self.max_dimensions.map(Into::into),
+            min_dimensions: self.min_dimensions.map(Into::into),
             title: self.title,
             visible: self.visibility,
             ..Default::default()
@@ -89,9 +89,9 @@ impl From<WindowBuilder> for DisplayConfig {
         DisplayConfig {
             title: wb.window.title,
             fullscreen: wb.window.fullscreen.is_some(),
-            dimensions: wb.window.dimensions,
-            max_dimensions: wb.window.max_dimensions,
-            min_dimensions: wb.window.min_dimensions,
+            dimensions: wb.window.dimensions.map(Into::into),
+            max_dimensions: wb.window.max_dimensions.map(Into::into),
+            min_dimensions: wb.window.min_dimensions.map(Into::into),
             visibility: wb.window.visible,
             ..Default::default()
         }

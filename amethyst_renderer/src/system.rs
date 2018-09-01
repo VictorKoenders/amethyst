@@ -65,11 +65,11 @@ where
 
     /// Create a new render system
     pub fn new(pipe: P, renderer: Renderer) -> Self {
-        let cached_size = renderer.window().get_inner_size().unwrap();
+        let (width, height) = renderer.window().get_inner_size().unwrap().into();
         Self {
             pipe,
             renderer,
-            cached_size,
+            cached_size: (width, height),
             event_vec: Vec::with_capacity(20),
         }
     }
@@ -106,19 +106,21 @@ where
         // Send resource size changes to the window
         if screen_dimensions.dirty {
             self.renderer.window().set_inner_size(
-                screen_dimensions.width() as u32,
-                screen_dimensions.height() as u32,
+                (
+                    screen_dimensions.width() as u32,
+                    screen_dimensions.height() as u32,
+                ).into(),
             );
             screen_dimensions.dirty = false;
         }
 
         if let Some(size) = self.renderer.window().get_inner_size() {
             // Send window size changes to the resource
-            if size != (
-                screen_dimensions.width() as u32,
-                screen_dimensions.height() as u32,
-            ) {
-                screen_dimensions.update(size.0, size.1);
+            let (width, height) = size.into();
+            if width != screen_dimensions.width() as u32
+                || height != screen_dimensions.height() as u32
+            {
+                screen_dimensions.update(width, height);
 
                 // We don't need to send the updated size of the window back to the window itself,
                 // so set dirty to false.
@@ -175,9 +177,10 @@ where
             .renderer
             .window()
             .get_inner_size()
-            .expect("Window closed during initialization!");
-        let hidpi = self.renderer.window().hidpi_factor();
-        res.insert(ScreenDimensions::new(width, height, hidpi));
+            .expect("Window closed during initialization!")
+            .into();
+        let hidpi = self.renderer.window().get_hidpi_factor();
+        res.insert(ScreenDimensions::new(width, height, hidpi as f32));
     }
 }
 
